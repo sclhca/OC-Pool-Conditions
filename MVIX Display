@@ -99,7 +99,7 @@
 
   <script>
     // 👇 Replace with your Google Apps Script web app URL
-    const SHEET_URL = "YOUR_WEB_APP_URL_HERE";
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzSyFyvXQqWvP-WdUb5XqypEYKNiZIxOiqaIX3DFnOvNtyW7JCIHfRBmWvAVPGX-zNbjg/exec";
 
     async function fetchData() {
       try {
