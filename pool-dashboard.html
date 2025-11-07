@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="1800"> <!-- reload every 30 min just in case -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pool Conditions Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d1b2a;
+      --card-bg: #1b263b;
+      --accent: #00b4d8;
+      --text: #ffffff;
+      --font-large: 3.5vw;
+      --font-medium: 2vw;
+      --font-small: 1.5vw;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .container {
+      width: 90%;
+      max-width: 1600px;
+    }
+    h1 {
+      text-align: center;
+      font-size: var(--font-large);
+      margin-bottom: 2vh;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    }
+    th, td {
+      padding: 1.2vh 1vw;
+      text-align: center;
+      font-size: var(--font-medium);
+    }
+    th {
+      background: #144272;
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background: rgba(255,255,255,0.05);
+    }
+    tr:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    footer {
+      text-align: center;
+      font-size: var(--font-small);
+      color: #ccc;
+      margin-top: 2vh;
+    }
+    .fade {
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Current Pool Conditions</h1>
+    <table id="poolsTable" class="fade">
+      <thead>
+        <tr>
+          <th>Pool</th>
+          <th>Temp (°F)</th>
+          <th>Chlorine (ppm)</th>
+          <th>pH</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5">Loading data...</td></tr>
+      </tbody>
+    </table>
+    <footer id="lastRefresh">Last refreshed: --</footer>
+  </div>
 
+  <script>
+    // 👇 Replace with your Google Apps Script web app URL
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzSyFyvXQqWvP-WdUb5XqypEYKNiZIxOiqaIX3DFnOvNtyW7JCIHfRBmWvAVPGX-zNbjg/exec";
+
+    async function fetchData() {
+      try {
+        const res = await fetch(SHEET_URL);
+        const data = await res.json();
+        const tbody = document.querySelector("#poolsTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row["Pool Name"]}</td>
+            <td>${row["Temp (°F)"]}</td>
+            <td>${row["Chlorine (ppm)"]}</td>
+            <td>${row["pH"]}</td>
+            <td>${row["Last Updated"]}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        document.getElementById("lastRefresh").textContent =
+          "Last refreshed: " + new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        document.querySelector("#poolsTable tbody").innerHTML =
+          `<tr><td colspan="5">Error loading data</td></tr>`;
+      }
+    }
+
+    fetchData();
+    // Auto-refresh data every 5 minutes
+    setInterval(fetchData, 5 * 60 * 1000);
+  </script>
+</body>
+</html>
